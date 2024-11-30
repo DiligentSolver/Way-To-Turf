@@ -1,3 +1,4 @@
+import 'package:connection_notifier/connection_notifier.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
@@ -6,13 +7,12 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:waytoturf/firebase_options.dart';
+import 'package:waytoturf/openapp.dart';
 import 'package:waytoturf/screens/authentication/repository/authentication_repository.dart';
 import 'package:waytoturf/screens/authentication/welcome_screen.dart';
 import 'package:waytoturf/screens/dashboard/dashboard_homepage.dart';
 import 'package:waytoturf/screens/onboarding/onboarding.dart';
 import 'package:waytoturf/utils/device_utility.dart';
-
-import 'myapp.dart';
 
 Future<void> main() async {
   /// GetX Local Storage
@@ -35,12 +35,8 @@ Future<void> main() async {
           (value) => Get.put(AuthenticationRepository(FirebaseAuth.instance)));
 
   /// --Initialize Authentication
-  MyAppDeviceUtils.setPreferredOrientations(
-
-      [DeviceOrientation.portraitDown, DeviceOrientation.portraitUp]);
-  runApp(MyApp(
-    home: isFirstTime
-        ? const Onboarding()
-        : userRegistered ? const HomePage() : const WelcomeScreen(),
-  ));
+  MyAppDeviceUtils.setPreferredOrientations([DeviceOrientation.portraitDown, DeviceOrientation.portraitUp]);
+  runApp(OpenApp(home: isFirstTime
+      ? const Onboarding()
+      : userRegistered ? const HomePage() : const WelcomeScreen()));
 }

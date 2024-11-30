@@ -57,15 +57,12 @@ dependencies:
 
 
   flutter_launcher_icons: ^0.13.1
-  flutter_offline: ^4.0.0
-  connectivity_plus: ^6.1.0
-  internet_connection_checker: ^1.0.0+1
   dio: ^5.7.0
   package_info_plus: ^8.1.1
   path_provider: ^2.1.5
   open_file: ^3.5.10
   permission_handler: ^11.3.1
-  android_intent_plus: ^5.2.0
+  connection_notifier: ^2.0.1
 
 flutter_icons:
   android: true

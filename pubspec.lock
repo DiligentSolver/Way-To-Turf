@@ -9,14 +9,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.3.46"
-  android_intent_plus:
-    dependency: "direct main"
-    description:
-      name: android_intent_plus
-      sha256: "38921ec22ebb3b9a7eb678792cf6fab0b6f458b61b9d327688573449c9b47db3"
-      url: "https://pub.dev"
-    source: hosted
-    version: "5.2.0"
   ansicolor:
     dependency: transitive
     description:
@@ -137,19 +129,11 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.18.0"
-  connectivity_plus:
+  connection_notifier:
     dependency: "direct main"
     description:
-      name: connectivity_plus
-      sha256: "876849631b0c7dc20f8b471a2a03142841b482438e3b707955464f5ffca3e4c3"
-      url: "https://pub.dev"
-    source: hosted
-    version: "6.1.0"
-  connectivity_plus_platform_interface:
-    dependency: transitive
-    description:
-      name: connectivity_plus_platform_interface
-      sha256: "42657c1715d48b167930d5f34d00222ac100475f73d10162ddf43e714932f204"
+      name: connection_notifier
+      sha256: fa8b1a3c19929890361a7c338e99c168514ab764d5db4033e4c3098930f23643
       url: "https://pub.dev"
     source: hosted
     version: "2.0.1"
@@ -177,14 +161,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.8"
-  dbus:
-    dependency: transitive
-    description:
-      name: dbus
-      sha256: "365c771ac3b0e58845f39ec6deebc76e3276aa9922b0cc60840712094d9047ac"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.7.10"
   dio:
     dependency: "direct main"
     description:
@@ -358,14 +334,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.4.3"
-  flutter_offline:
-    dependency: "direct main"
-    description:
-      name: flutter_offline
-      sha256: "6aa1fec500e36ad54cff3eb2a242cc5617f8357f8b566eb5c97584c31b3c4ca9"
-      url: "https://pub.dev"
-    source: hosted
-    version: "4.0.0"
   flutter_shaders:
     dependency: transitive
     description:
@@ -457,7 +425,7 @@ packages:
     source: hosted
     version: "4.3.0"
   internet_connection_checker:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: internet_connection_checker
       sha256: "1c683e63e89c9ac66a40748b1b20889fd9804980da732bf2b58d6d5456c8e876"
@@ -536,30 +504,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.15.0"
-  network_info_plus:
-    dependency: transitive
-    description:
-      name: network_info_plus
-      sha256: "5bd4b86e28fed5ed4e6ac7764133c031dfb7d3f46aa2a81b46f55038aa78ecc0"
-      url: "https://pub.dev"
-    source: hosted
-    version: "5.0.3"
-  network_info_plus_platform_interface:
-    dependency: transitive
-    description:
-      name: network_info_plus_platform_interface
-      sha256: b7f35f4a7baef511159e524499f3c15464a49faa5ec10e92ee0bce265e664906
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.0.1"
-  nm:
-    dependency: transitive
-    description:
-      name: nm
-      sha256: "2c9aae4127bdc8993206464fcc063611e0e36e72018696cd9631023a31b24254"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.5.0"
   open_file:
     dependency: "direct main"
     description:
@@ -776,6 +720,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.8"
+  rxdart:
+    dependency: transitive
+    description:
+      name: rxdart
+      sha256: "0c7c0cedd93788d996e33041ffecda924cc54389199cde4e6a34b440f50044cb"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.27.7"
   shared_preferences:
     dependency: "direct main"
     description:

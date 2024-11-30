@@ -245,8 +245,9 @@ class _OtpVerificationState extends State<OtpVerification> {
                   ),
                   Ver(5),
                   VerifyOtp(onPressed: (){
-            if(otpKey.currentState!.validate() && controller.authController.isOTPMatched) {
-                    controller.verifyOtp(otp);}
+                    controller.verifyOtp(otp);
+                    if(otpKey.currentState!.validate() && controller.authController.isOTPMatched) {
+                      controller.verifyOtp(otp);}
                   }),
                   Ver(30),
                 ],

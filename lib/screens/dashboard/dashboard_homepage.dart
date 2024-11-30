@@ -41,12 +41,14 @@ class HomePage extends StatefulWidget {
 
   @override
   State<HomePage> createState() => _HomePageState();
+
 }
 
 class _HomePageState extends State<HomePage> {
 
   final controller = Get.put(DashboardController());
   late final latestVersion;
+  late final urlToDownload;
   int _selectedIndex = 0;
   bool isUpdateNow = false;
 
@@ -57,9 +59,9 @@ class _HomePageState extends State<HomePage> {
     // TODO: implement initState
     controller.userRegistered();
    _checkForUpdates();
+   isUpdateNow ? _downloadAndInstall(urlToDownload):null;
     super.initState();
   }
-
 
   Future<void> _checkForUpdates() async {
     try {
@@ -73,6 +75,7 @@ class _HomePageState extends State<HomePage> {
       final downloadUrl = response.data['downloadUrl'];
 
       latestVersion = latestVersionCode;
+      urlToDownload = downloadUrl;
 
       if (latestVersionCode > currentVersionCode) {
         _showUpdateDialog(downloadUrl);
@@ -96,9 +99,13 @@ class _HomePageState extends State<HomePage> {
 
     try {
       // Use Downloads directory
-      Directory downloadsDir = Directory('/storage/emulated/0/Download');
+      Directory downloadsDir = Directory('/storage/emulated/0/Download/Way To Turf/');
       String fileName = "Way to Turf_$latestVersion.apk";
       String filePath = "${downloadsDir.path}/$fileName";
+
+      if (!await downloadsDir.exists()) {
+        await downloadsDir.create(recursive: true);
+      }
 
       // Check if the file already exists
       File apkFile = File(filePath);
@@ -106,6 +113,7 @@ class _HomePageState extends State<HomePage> {
         setState(() {
           _statusMessage = "Open downloads and install the file";
         });
+        _scheduleFileDeletion(apkFile); // Schedule deletion for the existing file
         _showInstallDialog(fileName, downloadsDir.path);
         return;
       }
@@ -128,6 +136,10 @@ class _HomePageState extends State<HomePage> {
         },
       );
 
+      // File successfully downloaded, schedule deletion
+      _scheduleFileDeletion(File(filePath));
+
+      // Show dialog after download
       _showInstallDialog(fileName, downloadsDir.path);
     } catch (e) {
       setState(() {
@@ -136,21 +148,52 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  void _scheduleFileDeletion(File apkFile) {
+    Future.delayed(const Duration(hours: 4), () async {
+      try {
+        if (await apkFile.exists()) {
+          await apkFile.delete();
+          print("File ${apkFile.path} deleted after 4 hours.");
+        }
+      } catch (e) {
+        print("Failed to delete file: $e");
+      }
+    });
+  }
+
+
   void _showInstallDialog(String fileName, String filePath) {
     showDialog(
       context: context,
+      barrierColor: Colors.white,
       barrierDismissible: false, // Prevent dismissal
       builder: (context) {
         return AlertDialog(
-          title: Text("Update Downloaded"),
+          title: Text(
+            "Update Downloaded",
+            style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 18),
+          ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text("The update has been downloaded."),
-              SizedBox(height: 8),
-              Text("File: $fileName", style: TextStyle(fontWeight: FontWeight.bold)),
-              SizedBox(height: 16),
-              Text("Do you want to install the update now?"),
+              Text(
+                "The update has been downloaded.",
+                style: GoogleFonts.poppins(fontSize: 14),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                "File: $fileName",
+                style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                  color: Colors.grey[800],
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                "Do you want to install the update now?",
+                style: GoogleFonts.poppins(fontSize: 14),
+              ),
             ],
           ),
           actions: [
@@ -158,14 +201,20 @@ class _HomePageState extends State<HomePage> {
               onPressed: () {
                 exit(0); // Close the app
               },
-              child: Text("Close Now"),
+              child: Text(
+                "Close Now",
+                style: GoogleFonts.poppins(fontSize: 14, color: Colors.red),
+              ),
             ),
             ElevatedButton(
               onPressed: () {
                 Navigator.of(context).pop();
                 OpenFile.open(filePath); // Open the APK for installation
               },
-              child: Text("Install Now"),
+              child: Text(
+                "Install Now",
+                style: GoogleFonts.poppins(fontSize: 14,color: MyColors.appColor),
+              ),
             ),
           ],
         );
@@ -173,20 +222,29 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-
-
   void _showUpdateDialog(String downloadUrl) {
     showDialog(
       context: context,
+      barrierColor: MyColors.black.withOpacity(0.7),
       barrierDismissible: false, // Prevent dismissal
       builder: (context) {
         return AlertDialog(
-          title: Text("Update Available"),
-          content: Text("A new version of the app is available. Do you want to update now?"),
+          backgroundColor: MyColors.white,
+          title: Text(
+            "Update Available",
+            style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 18),
+          ),
+          content: Text(
+            "A new version of the app is available. Do you want to update now?",
+            style: GoogleFonts.poppins(fontSize: 14),
+          ),
           actions: [
             TextButton(
               onPressed: () => exit(0), // Close the app
-              child: Text("Close"),
+              child: Text(
+                "Close",
+                style: GoogleFonts.poppins(fontSize: 14, color: Colors.red),
+              ),
             ),
             ElevatedButton(
               onPressed: () {
@@ -196,13 +254,17 @@ class _HomePageState extends State<HomePage> {
                   isUpdateNow = true;
                 });
               },
-              child: Text("Update Now"),
+              child: Text(
+                "Update Now",
+                style: GoogleFonts.poppins(fontSize: 14,color: MyColors.appColor),
+              ),
             ),
           ],
         );
       },
     );
   }
+
 
   int selectedIndex = 0;
 
@@ -258,9 +320,17 @@ class _HomePageState extends State<HomePage> {
         setState(() {});
       },
       child: isUpdateNow ? Scaffold(
-        appBar: AppBar(title: const Text("Update Checker")),
-        body: Center(
-          child: Text(_statusMessage),
+        backgroundColor: Colors.white,
+        appBar: AppBar(title: Text("Update App",style: GoogleFonts.poppins(
+          color: Colors.white,
+        ),),centerTitle: true,backgroundColor: MyColors.appColor,),
+        body: SafeArea(
+          child: GestureDetector(
+
+            child: Center(
+              child: Text(_statusMessage),
+            ),
+          ),
         ),
       ):Scaffold(
         backgroundColor: MyColors.white,
