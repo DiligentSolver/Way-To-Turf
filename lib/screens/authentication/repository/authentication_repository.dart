@@ -6,6 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:waytoturf/screens/authentication/welcome_screen.dart';
 import 'package:waytoturf/screens/dashboard/dashboard_homepage.dart';
 import 'package:waytoturf/screens/onboarding/onboarding.dart';
@@ -24,9 +25,13 @@ class AuthenticationRepository extends GetxController {
   final deviceStorage = GetStorage();
   String _verificationId = '';
   bool isOtpSent = false;
+  bool isOTPMatched = false;
+
 
   @override
   Future<void> onReady() async {
+
+
     firebaseUser = Rx<User?>(_auth.currentUser);
     ever(firebaseUser, (callback) {
       firebaseUser.bindStream(_auth.authStateChanges());
@@ -65,6 +70,10 @@ class AuthenticationRepository extends GetxController {
     }
   }
 
+  reqPermission() async {
+    await Permission.storage.request();
+  }
+
    verifyOtp (String smsCode) {
   //   try{
   //   PhoneAuthCredential credential = PhoneAuthProvider.credential(verificationId: _verificationId, smsCode: smsCode);
@@ -77,17 +86,15 @@ class AuthenticationRepository extends GetxController {
   // }
     if(smsCode=="8462"){
       Loader.successSnackBar(title: "Hurray!", message: "SignUp Successful!");
-      return true;
+      isOTPMatched = true;
     }else{
       Loader.errorSnackBar(title: "Sorry!", message: "Otp not match");
+      isOTPMatched = false;
     }
-    return false;
+
   }
 
   checkUser() async {
-    print(deviceStorage.read('userRegistered'));
-    print(deviceStorage.read('Fav_Sport'));
-    print(deviceStorage.read('city'));
     try {
       deviceStorage.read('IsFirstTime')
           ? const Onboarding()

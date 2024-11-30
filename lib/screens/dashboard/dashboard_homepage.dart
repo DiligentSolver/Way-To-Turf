@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -9,6 +12,10 @@ import 'package:get/get.dart';
 import 'package:get/get_core/get_core.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:open_file/open_file.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:waytoturf/constructors/products.dart';
 import 'package:waytoturf/constructors/profilepic.dart';
 import 'package:waytoturf/constructors/textformfield.dart';
@@ -18,6 +25,7 @@ import 'package:waytoturf/screens/Interaction/interaction_notifications.dart';
 import 'package:waytoturf/screens/Interaction/interaction_products.dart';
 import 'package:waytoturf/screens/Interaction/interaction_turfs.dart';
 import 'package:waytoturf/screens/cities/cities.dart';
+import 'package:waytoturf/screens/dashboard/dashboard_controller.dart';
 import 'package:waytoturf/utils/colors.dart';
 import 'package:waytoturf/utils/images.dart';
 import 'package:waytoturf/utils/sizes.dart';
@@ -36,226 +44,164 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  var deviceStorage = GetStorage();
 
-  final List<String> imageUrls = [
-    MyImages.events,
-    MyImages.discount,
-    MyImages.refer,
-    MyImages.coach,
-    MyImages.champion
-  ];
-
-  final List<Map<String, dynamic>> sportsData = [
-    {"name": "Football", "icon": Icons.sports_soccer},
-    {"name": "Cricket", "icon": Icons.sports_cricket},
-    {"name": "Basketball", "icon": Icons.sports_basketball},
-    {"name": "Badminton", "icon": FontAwesomeIcons.tableTennisPaddleBall},
-    {"name": "Swimming", "icon": FontAwesomeIcons.personSwimming},
-    {"name": "VolleyBall", "icon": Icons.sports_volleyball},
-  ];
-
-  final Map<String, IconData> sportIcons = {
-    "Cricket": Icons.sports_cricket,
-    "Football": Icons.sports_soccer,
-    "Badminton": Icons.sports_tennis,
-    "Volleyball" : Icons.sports_volleyball,
-    "Basketball" : Icons.sports_basketball,
-    "Swimming" : FontAwesomeIcons.personSwimming,
-
-    // Add more sports here as needed
-  };
-  final List<Map<String, dynamic>> turfEventsData = [
-    {
-      "image": MyImages.sprintandsmash, // Replace with actual image URL
-      "name": "Sprint and Smash Turf",
-      "distance": "2 Km",
-      "price": "₹ 2999",
-      "date": "Dec 05-08",
-      "sport": "Cricket",
-      "bookingEnd": "03 Dec '24"
-    },
-    {
-      "image": MyImages.indorearena, // Replace with actual image URL
-      "name": "Indore Arena",
-      "distance": "3.5 Km",
-      "price": "₹ 1999",
-      "date": "Dec 10-12",
-      "sport": "Badminton",
-      "bookingEnd": "08 Dec '24"
-    },
-    {
-      "image": MyImages.royalsports, // Replace with actual image URL
-      "name": "Royal Sports Club",
-      "distance": "5 Km",
-      "price": "₹ 1499",
-      "date": "Dec 15-18",
-      "sport": "Football",
-      "bookingEnd": "13 Dec '24"
-    },
-    {
-      "image": MyImages.galaxysports, // Replace with actual image URL
-      "name": "Galaxy Sports Complex",
-      "distance": "1.2 Km",
-      "price": "₹ 999",
-      "date": "Dec 20-22",
-      "sport": "Basketball",
-      "bookingEnd": "18 Dec '24"
-    },
-    {
-      "image": MyImages.victorGrounds, // Replace with actual image URL
-      "name": "Victory Grounds",
-      "distance": "4 Km",
-      "price": "₹ 2499",
-      "date": "Dec 25-28",
-      "sport": "Volleyball",
-      "bookingEnd": "23 Dec '24"
-    },
-  ];
-
-  final List<Map<String, dynamic>> turfData = [
-    {
-      "discount": "10% OFF",
-      "image": MyImages.badminton, // Replace with actual image URL
-      "name": "Victory Sports Arena",
-      "location": "Near Rajwada Palace, Indore",
-      "distance": "3.5 Km",
-      "price": "₹ 1999",
-      "rating": "4.6",
-      "reviews": "120",
-      "sports": ["Badminton", "Volleyball"]
-    },
-    {
-      "discount": "30% OFF",
-      "image": MyImages.basketball, // Replace with actual image URL
-      "name": "ProKick Turf",
-      "location": "Near Bhawarkua Square, Indore",
-      "distance": "1.8 Km",
-      "price": "₹ 2499",
-      "rating": "4.4",
-      "reviews": "89",
-      "sports": ["Football", "Basketball"]
-    },
-    {
-      "discount": "15% OFF",
-      "image": MyImages.swimming, // Replace with actual image URL
-      "name": "Green Valley Turf",
-      "location": "Near Choithram Hospital, AB Road, Indore",
-      "distance": "5 Km",
-      "price": "₹ 2799",
-      "rating": "4.2",
-      "reviews": "76",
-      "sports": ["Swimming", "Volleyball"]
-    },
-    {
-      "discount": "20% OFF",
-      "image": MyImages.cricket1, // Replace with actual image URL
-      "name": "Galaxy Sports Arena",
-      "location": "Near Khajrana Ganesh Temple, Indore",
-      "distance": "2.5 Km",
-      "price": "₹ 3099",
-      "rating": "4.5",
-      "reviews": "105",
-      "sports": ["Basketball", "Cricket"]
-    },
-    {
-      "discount": "35% OFF",
-      "image": MyImages.football, // Replace with actual image URL
-      "name": "ArenaX Sports Hub",
-      "location": "Near Rajendra Nagar, Indore",
-      "distance": "3 Km",
-      "price": "₹ 2399",
-      "rating": "4.7",
-      "reviews": "150",
-      "sports": ["Football", "Swimming"]
-    },
-  ];
-
-  final List<Map<String, dynamic>> upComingTurfTournaments = [
-    {
-      "name": "Indore Premier League",
-      "image": MyImages.indorepremiere,
-      "location": "Vijay Nagar, Indore",
-      "price": "₹ 5000",
-      "teamCanJoin": "8 Teams",
-    },
-    {
-      "name": "Smash Badminton Tournament",
-      "image": MyImages.smashbadminton,
-      "location": "Near Palasia Square, Indore",
-      "price": "₹ 3000",
-      "teamCanJoin": "16 Teams",
-    },
-    {
-      "name": "Hoop Warriors Championship",
-      "image": MyImages.hoopwarriors,
-      "location": "Rajwada, Indore",
-      "price": "₹ 4500",
-      "teamCanJoin": "10 Teams",
-    },
-    {
-      "name": "Ace Volleyball Cup",
-      "image": MyImages.acevolleyball,
-      "location": "MG Road, Indore",
-      "price": "₹ 3500",
-      "teamCanJoin": "12 Teams",
-    },
-    {
-      "name": "Football Kings League",
-      "image": MyImages.footballkingsleague,
-      "location": "AB Road, Indore",
-      "price": "₹ 6000",
-      "teamCanJoin": "6 Teams",
-    },
-  ];
-
-  final List<Map<String, dynamic>> sportsProducts = [
-    {
-      "productName": "Pro Cricket Bat - Lightweight",
-      "image": MyImages.cricketbat,
-    },
-    {
-      "productName": "Dribble Pro Basketball - Indoor/Outdoor",
-      "image": MyImages.basketball_p,
-    },
-    {
-      "productName": "Smash Badminton Racket - Carbon Fiber",
-      "image": MyImages.bdracket,
-    },
-    {
-      "productName": "Viper Volleyball - Waterproof",
-      "image": MyImages.volleyball,
-    },
-    {
-      "productName": "ProFit Running Shoes - Breathable Design",
-      "image": MyImages.shoes,
-    },
-    {
-      "productName": "Speedy Tennis Ball - Pack of 6",
-      "image": MyImages.tennis,
-    },
-    {
-      "productName": "X-Trail Trekking Pole - Adjustable",
-      "image": MyImages.trecking,
-    },
-    {
-      "productName": "Stamina Jump Rope - Weighted Handles",
-      "image": MyImages.rope,
-    },
-  ];
-
-
+  final controller = Get.put(DashboardController());
+  late final latestVersion;
   int _selectedIndex = 0;
+  bool isUpdateNow = false;
+
+  String _statusMessage = "Checking for updates...";
 
   @override
   void initState() {
     // TODO: implement initState
-    userRegistered();
+    controller.userRegistered();
+   _checkForUpdates();
     super.initState();
   }
 
-  void userRegistered() async {
-    deviceStorage.write('userRegistered', true);
+
+  Future<void> _checkForUpdates() async {
+    try {
+      // Get current app version
+      PackageInfo packageInfo = await PackageInfo.fromPlatform();
+      int currentVersionCode = int.parse(packageInfo.buildNumber);
+
+      // Fetch latest version info from server
+      final response = await Dio().get('https://b05b24de-8d53-4e64-882f-6f3f898b4109.mock.pstmn.io/latest-version'); // Replace with your API
+      final latestVersionCode = response.data['versionCode'];
+      final downloadUrl = response.data['downloadUrl'];
+
+      latestVersion = latestVersionCode;
+
+      if (latestVersionCode > currentVersionCode) {
+        _showUpdateDialog(downloadUrl);
+      } else {
+        setState(() {
+          _statusMessage = "Your app is up-to-date.";
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _statusMessage = "Failed to check for updates: $e";
+      });
+    }
+  }
+
+
+  Future<void> _downloadAndInstall(String url) async {
+    setState(() {
+      _statusMessage = "Preparing to download...";
+    });
+
+    try {
+      // Use Downloads directory
+      Directory downloadsDir = Directory('/storage/emulated/0/Download');
+      String fileName = "Way to Turf_$latestVersion.apk";
+      String filePath = "${downloadsDir.path}/$fileName";
+
+      // Check if the file already exists
+      File apkFile = File(filePath);
+      if (await apkFile.exists()) {
+        setState(() {
+          _statusMessage = "Open downloads and install the file";
+        });
+        _showInstallDialog(fileName, downloadsDir.path);
+        return;
+      }
+
+      // File does not exist, proceed to download
+      setState(() {
+        _statusMessage = "Downloading update...";
+      });
+
+      // Download the APK file
+      await Dio().download(
+        url,
+        filePath,
+        onReceiveProgress: (received, total) {
+          if (total != -1) {
+            setState(() {
+              _statusMessage = "Downloading: ${(received / total * 100).toStringAsFixed(0)}%";
+            });
+          }
+        },
+      );
+
+      _showInstallDialog(fileName, downloadsDir.path);
+    } catch (e) {
+      setState(() {
+        _statusMessage = "Failed to download or install update: $e";
+      });
+    }
+  }
+
+  void _showInstallDialog(String fileName, String filePath) {
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Prevent dismissal
+      builder: (context) {
+        return AlertDialog(
+          title: Text("Update Downloaded"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text("The update has been downloaded."),
+              SizedBox(height: 8),
+              Text("File: $fileName", style: TextStyle(fontWeight: FontWeight.bold)),
+              SizedBox(height: 16),
+              Text("Do you want to install the update now?"),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                exit(0); // Close the app
+              },
+              child: Text("Close Now"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                OpenFile.open(filePath); // Open the APK for installation
+              },
+              child: Text("Install Now"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+
+
+  void _showUpdateDialog(String downloadUrl) {
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Prevent dismissal
+      builder: (context) {
+        return AlertDialog(
+          title: Text("Update Available"),
+          content: Text("A new version of the app is available. Do you want to update now?"),
+          actions: [
+            TextButton(
+              onPressed: () => exit(0), // Close the app
+              child: Text("Close"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _downloadAndInstall(downloadUrl);
+                setState(() {
+                  isUpdateNow = true;
+                });
+              },
+              child: Text("Update Now"),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   int selectedIndex = 0;
@@ -271,7 +217,7 @@ class _HomePageState extends State<HomePage> {
         });
       },
       child: Container(
-        padding: EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+        padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
         decoration: BoxDecoration(
           color: isSelected ? Colors.white : Colors.transparent,
           borderRadius: BorderRadius.circular(20),
@@ -303,7 +249,7 @@ class _HomePageState extends State<HomePage> {
     final screenHeight =
         MediaQuery.of(context).size.height; // Get screen height
 
-    final city = deviceStorage.read('city');
+    final city = controller.deviceStorage.read('city');
 
     final dateToday = DateFormat("d MMM").format(DateTime.now());
 
@@ -311,7 +257,12 @@ class _HomePageState extends State<HomePage> {
       onTap: () {
         setState(() {});
       },
-      child: Scaffold(
+      child: isUpdateNow ? Scaffold(
+        appBar: AppBar(title: const Text("Update Checker")),
+        body: Center(
+          child: Text(_statusMessage),
+        ),
+      ):Scaffold(
         backgroundColor: MyColors.white,
         bottomNavigationBar: BottomAppBar(
           height: screenHeight * 0.0725,
@@ -440,7 +391,7 @@ class _HomePageState extends State<HomePage> {
                   aspectRatio: 16 / 9,
                   viewportFraction: 1, // Fraction of the screen to occupy
                 ),
-                items: imageUrls.map((url) {
+                items: controller.imageUrls.map((url) {
                   return Builder(
                     builder: (BuildContext context) {
                       return Container(
@@ -526,8 +477,8 @@ class _HomePageState extends State<HomePage> {
                             scrollDirection: Axis.horizontal,
                             child: Row(
                               children:
-                                  List.generate(sportsData.length, (index) {
-                                final sport = sportsData[index];
+                                  List.generate(controller.sportsData.length, (index) {
+                                final sport = controller.sportsData[index];
                                 bool isSelected = index == _selectedIndex;
                                 return GestureDetector(
                                   onTap: () {
@@ -566,11 +517,11 @@ class _HomePageState extends State<HomePage> {
               Padding(
                 padding: const EdgeInsets.only(left: 15.0, right: 15),
                 child: Column(
-                  children: turfData
+                  children: controller.turfData
                       .map((data) {
                         return TurfCard(
                           data,
-                          sportIcons: sportIcons,
+                          sportIcons: controller.sportIcons,
                         ); // Assuming TurfCard is your widget for displaying each item
                       })
                       .take(3)
@@ -582,7 +533,7 @@ class _HomePageState extends State<HomePage> {
                 width: screenWidth * 0.35,
                 child: ElevatedButton(
                   onPressed: () {
-                    Get.to(() => InteractionTurfsPage(turfData: turfData, sportIcons: sportIcons,));
+                    Get.to(() => InteractionTurfsPage(turfData: controller.turfData, sportIcons: controller.sportIcons,));
                   },
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -626,7 +577,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                     const Spacer(),
                     GestureDetector(
-                      onTap: () => Get.to(() => InteractionEventsPage(data: turfEventsData, sportIcons: sportIcons,)),
+                      onTap: () => Get.to(() => InteractionEventsPage(data: controller.turfEventsData, sportIcons: controller.sportIcons,)),
                       child: AutoSizeText(
                         "View all",
                         style: GoogleFonts.poppins(
@@ -643,7 +594,7 @@ class _HomePageState extends State<HomePage> {
                 padding: const EdgeInsets.only(left: 15, right: 15),
                 child: Column(
                   children: List.generate(3, (index){
-                    return EventsTile(data: turfEventsData[index], sportIcons:sportIcons,);
+                    return EventsTile(data: controller.turfEventsData[index], sportIcons:controller.sportIcons,);
                   }),
                 )
                 ),
@@ -668,7 +619,7 @@ class _HomePageState extends State<HomePage> {
                     const Spacer(),
                     GestureDetector(
                       onTap: () =>
-                          Get.to(() => InteractionProductsPage(data: sportsProducts)),
+                          Get.to(() => InteractionProductsPage(data: controller.sportsProducts)),
                       child: AutoSizeText(
                         "View all",
                         style: GoogleFonts.poppins(
@@ -689,9 +640,9 @@ class _HomePageState extends State<HomePage> {
                     physics: NeverScrollableScrollPhysics(),
                     itemCount: 4,
                     gridDelegate:
-                    SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2,childAspectRatio: 0.7),
+                    const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2,childAspectRatio: 0.7),
                     itemBuilder: (context, index) {
-                      return ProductsTile( data: sportsProducts[index]);
+                      return ProductsTile( data: controller.sportsProducts[index]);
                     },
                   ),
                 ),
@@ -717,7 +668,7 @@ class _HomePageState extends State<HomePage> {
                     const Spacer(),
                     GestureDetector(
                       onTap: () =>
-                          Get.to(() => InteractionTournamentsPage(data: upComingTurfTournaments,)),
+                          Get.to(() => InteractionTournamentsPage(data: controller.upComingTurfTournaments,)),
                       child: AutoSizeText(
                         "View all",
                         style: GoogleFonts.poppins(
@@ -735,8 +686,8 @@ class _HomePageState extends State<HomePage> {
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
-                    children: List.generate(upComingTurfTournaments.length, (index) {
-                      return TournamentsTile(data: upComingTurfTournaments[index]);
+                    children: List.generate(controller.upComingTurfTournaments.length, (index) {
+                      return TournamentsTile(data: controller.upComingTurfTournaments[index]);
                     }),
                     // children: turfData.map((data) {
                     //   return TournamentsTile(data: data); // Assuming TurfCard is your widget for displaying each item
