@@ -165,10 +165,11 @@ class _HomePageState extends State<HomePage> {
   void _showInstallDialog(String fileName, String filePath) {
     showDialog(
       context: context,
-      barrierColor: Colors.white,
+      barrierColor: MyColors.black.withOpacity(0.7),
       barrierDismissible: false, // Prevent dismissal
       builder: (context) {
         return AlertDialog(
+          backgroundColor: MyColors.white,
           title: Text(
             "Update Downloaded",
             style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 18),
